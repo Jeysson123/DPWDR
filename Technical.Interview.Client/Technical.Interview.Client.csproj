@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Technical.Interview.Model\Technical.Interview.Model.csproj" />
+	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Technical.Interview.Service\Technical.Interview.Service.csproj" />
+  </ItemGroup>
+
+</Project>

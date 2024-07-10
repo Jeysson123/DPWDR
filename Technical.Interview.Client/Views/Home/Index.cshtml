@@ -1,0 +1,180 @@
+﻿@model Technical.Interview.Model.Entities.ProductAdapter
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            @if (Model.ListProducts != null && Model.ListProducts.Count() > 0)
+            {
+                <h1 class="text-left">Lista de Productos: @Model.ListProducts.Count()</h1>
+            }
+            <div class="form-inline">
+                <label for="searchTitle" class="mr-2">Buscar por título:</label>
+                <input type="text" id="searchTitle" class="form-control mr-2" placeholder="Título">
+                <button class="btn btn-primary" onclick="searchProduct()">Buscar</button>
+            </div>
+        </div>
+
+        @if (Model.ListProducts == null || Model.ListProducts.Count() == 0)
+        {
+            <div class="alert alert-warning text-center">
+                No hay productos disponibles actualmente.
+            </div>
+        }
+        else
+        {
+            <table class="table table-striped table-bordered table-hover mt-4">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Id</th>
+                        <th>Título</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody">
+                    @foreach (var product in Model.ListProducts)
+                    {
+                        <tr>
+                            <td>@product.Id</td>
+                            <td>
+                                <a href="#" onclick="showDetails('@product.Id', '@product.Title', '@product.Price')">@product.Title</a>
+                            </td>
+                            <td>@product.Price</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="showUpdateModal('@product.Id', '@product.Title', '@product.Price')">Editar</button>
+                                <a class="btn btn-danger btn-sm" href="@Url.Action("DeleteProduct", new { id = product.Id })">Eliminar</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <nav>
+                <ul class="pagination justify-content-center" id="pagination"></ul>
+            </nav>
+        }
+
+        <!-- Modal Detalles -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="detailsModalLabel">Detalles del Producto</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Id:</strong> <span id="detailsProductId"></span></p>
+                        <p><strong>Título:</strong> <span id="detailsProductTitle"></span></p>
+                        <p><strong>Precio:</strong> <span id="detailsProductPrice"></span></p>
+                        <!-- Agregar más detalles si es necesario -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Actualización -->
+        <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateModalLabel">Actualizar Producto</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="updateForm" method="post" action="@Url.Action("UpdateProduct")">
+                        <div class="modal-body">
+                            <input type="hidden" name="Id" id="updateId" value="">
+                            <div class="form-group">
+                                <label for="updateTitle">Título</label>
+                                <input type="text" class="form-control" id="updateTitle" name="Title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="updatePrice">Precio</label>
+                                <input type="number" class="form-control" id="updatePrice" name="Price" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        var currentPage = 1;
+        var productsPerPage = 5;
+        var totalProducts = @Model.ListProducts?.Count() ?? 0;
+        var totalPages = Math.ceil(totalProducts / productsPerPage);
+
+        function showDetails(id, title, price) {
+            $('#detailsProductId').text(id);
+            $('#detailsProductTitle').text(title);
+            $('#detailsProductPrice').text(price);
+            $('#detailsModal').modal('show');
+        }
+
+        function showUpdateModal(id, title, price) {
+            $('#updateId').val(id);
+            $('#updateTitle').val(title);
+            $('#updatePrice').val(price);
+            $('#updateModal').modal('show');
+        }
+
+        function searchProduct() {
+            var searchTitle = $('#searchTitle').val().toLowerCase();
+            $('#productTableBody tr').each(function () {
+                var productTitle = $(this).find('td:nth-child(2) a').text().toLowerCase();
+                if (productTitle.startsWith(searchTitle)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+
+        function showPage(pageNumber) {
+            currentPage = pageNumber;
+            var start = (currentPage - 1) * productsPerPage;
+            var end = start + productsPerPage;
+
+            $('#productTableBody tr').hide().slice(start, end).show();
+
+            $('.page-item').removeClass('active');
+            $('#page-' + pageNumber).addClass('active');
+        }
+
+        function generatePagination() {
+            for (var i = 1; i <= totalPages; i++) {
+                $('#pagination').append(
+                    `<li class="page-item" id="page-${i}"><a class="page-link" href="#" onclick="showPage(${i})">${i}</a></li>`
+                );
+            }
+            $('#page-1').addClass('active');
+        }
+
+        $(document).ready(function () {
+            showPage(currentPage);
+            generatePagination();
+        });
+    </script>
+</body>
+</html>
