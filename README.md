@@ -32,6 +32,10 @@ Un aplicativo, para mantener productos con procesos backgrounds
 
   En este modulo utilizamos la arquitectura NUnit, para asegurar la integridad de nuestro codigo y la funcionalidad del aplicativo.
 
+Diagrama del Flujo operativo del APP ✅
+
+https://lucid.app/lucidspark/1621f831-d819-4a9b-a31e-6e79e4b4cb31/edit?invitationId=inv_4ae4320d-552b-4d66-ad97-da52b1eb3053&page=0_0#
+
 Versions ✅
 
 NET:
